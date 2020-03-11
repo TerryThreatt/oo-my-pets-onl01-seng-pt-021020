@@ -1,85 +1,60 @@
-require 'pry'
-
 class Owner
-  attr_reader :species, :name
-  attr_accessor :pets, :cats  
   @@all = []
-  
-  def initialize(name)
+  @@pets = {:dogs => [], :cats => []}
+  @@count = 0 
+  attr_reader :name, :species
+  attr_accessor :pets, :cats, :dogs 
+  def initialize(name, species = "human")
     @name = name 
-    @species = "human"
+    @species = species
     @@all << self 
-    @pets = { :dogs => [], :cats => []}
-    @mood = "nervous"
+    @@count +=1 
   end 
-  
   def say_species
-    return "I am a #{@species}."
+    "I am a #{@species}."
   end 
-  
-  def self.all 
+  def self.all
     @@all 
   end 
-  
   def self.count 
-    @@all.count 
+    @@all.size 
   end 
-  
-  def self.reset_all 
-    @@all.clear 
-  end
-  
-  def cats 
-    @owner.cats 
+  def self.reset_all  
+    @@all.clear
   end 
-  
-  def pets
-    @pets
+  def cats
+    Cat.all.select {|cat| cat.owner == self}
   end 
-  
-  def buy_dog(name_of_dog)
-    @pets[:dogs] << Dog.new(name_of_dog)
+  def dogs 
+    Dog.all.select {|dog| dog.owner == self} 
+  end 
+   def buy_cat(the_cats_name) 
+    Cat.new(the_cats_name, self)
   end
-
-  def buy_cat(name_of_cat)
-    @pets[:cats] << Cat.new(name_of_cat)
+  def buy_dog(the_dogs_name)
+    Dog.new(the_dogs_name, self)
   end
-
   def walk_dogs
-    @pets.collect do |species, instances|
-      if species == :dogs
-        instances.each do |dog|
-          dog.mood = "happy"
-        end
-      end
-    end
-  end
-
-  def play_with_cats
-    @pets.collect do |species, instances|
-      if species == :cats
-        instances.each do |cat|
-          cat.mood = "happy"
-        end
-      end
-    end
-  end
-
-  
-
+    Dog.all.each do |dog|
+      dog.mood = "happy"
+    end 
+  end 
+  def feed_cats
+    Cat.all.each do |cat|
+      cat.mood = "happy"
+    end 
+  end 
   def sell_pets
-    @pets.collect do |species, instances|
-      instances.each do |pet|
-        pet.mood = "nervous"
-      end
-      instances.clear
-    end
-  end
-
-  def list_pets()
-    num_dogs = @pets[:dogs].size
-    num_cats = @pets[:cats].size
-    return "I have #{num_dogs} dog(s), and #{num_cats} cat(s)."
-  end
-  # binding.pry
+    Cat.all.each do |cat, owner|
+      cat.mood = "nervous"
+      cat.owner = nil 
+    end 
+    Dog.all.each do |dog, owner|
+      dog.mood = "nervous" 
+      dog.owner = nil
+    end 
+  end 
+  def list_pets
+    return "I have #{dogs.count} dog(s), and #{cats.count} cat(s)."
+  end 
 end
